@@ -51,17 +51,17 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
         /// <summary>
         /// Brush used to draw skeleton center point
         /// </summary>
-        private readonly System.Windows.Media.Brush centerPointBrush = System.Windows.Media.Brushes.Red;
+        private readonly System.Windows.Media.Brush centerPointBrush = System.Windows.Media.Brushes.DarkCyan;
 
         /// <summary>
         /// Brush used for drawing joints that are currently tracked
         /// </summary>
-        private readonly System.Windows.Media.Brush trackedJointBrush = System.Windows.Media.Brushes.Red;
+        private readonly System.Windows.Media.Brush trackedJointBrush = System.Windows.Media.Brushes.Gray;
 
         /// <summary>
         /// Brush used for drawing joints that are currently inferred
         /// </summary>        
-        private readonly System.Windows.Media.Brush inferredJointBrush = System.Windows.Media.Brushes.Red; //Yellow;
+        private readonly System.Windows.Media.Brush inferredJointBrush = System.Windows.Media.Brushes.DarkCyan; //Yellow;
 
         /// <summary>
         /// Pen used for drawing bones that are currently tracked
@@ -153,25 +153,27 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
         private void WindowLoaded(object sender, RoutedEventArgs e)
 
         {
-            //Debug.Assert(System.Windows.Forms.SystemInformation.MonitorCount > 1);
+            Debug.Assert(System.Windows.Forms.SystemInformation.MonitorCount > 1);
 
-            //System.Drawing.Rectangle workingArea = System.Windows.Forms.Screen.AllScreens[1].WorkingArea;
-            //this.Left = workingArea.Left;
-            //this.Top = workingArea.Top;
-            //this.Width = workingArea.Width;
-            //this.Height = workingArea.Height;
-            //this.WindowState = WindowState.Maximized;
-            //this.WindowStyle = WindowStyle.None;
-            //this.Topmost = true;
-            //this.Show();
+            System.Drawing.Rectangle workingArea = System.Windows.Forms.Screen.AllScreens[1].WorkingArea;
+            this.Left = workingArea.Left;
+            this.Top = workingArea.Top;
+            this.Width = workingArea.Width;
+            this.Height = workingArea.Height;
+            this.WindowState = WindowState.Maximized;
+            this.WindowStyle = WindowStyle.None;
+            this.Topmost = true;
+            this.Show();
+           
             // Create the drawing group we'll use for drawing
             this.drawingGroup = new DrawingGroup();
-
+            
             // Create an image source that we can use in our image control
             this.imageSource = new DrawingImage(this.drawingGroup);
 
             // Display the drawing using our image control
             Image.Source = this.imageSource;
+            
 
             // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
@@ -205,7 +207,16 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.ColorFrameReady += this.SensorColorFrameReady;
                 // Turn on the skeleton stream to receive skeleton frames
-                this.sensor.SkeletonStream.Enable();
+               
+
+                TransformSmoothParameters smoothingParams = new TransformSmoothParameters();
+               // smoothingParams.Correction = 1;
+                smoothingParams.JitterRadius = .01f;
+               // smoothingParams.MaxDeviationRadius = .01f;
+               //// smoothingParams.Prediction = 0.01f;
+                smoothingParams.Smoothing = 0.9f;
+
+                this.sensor.SkeletonStream.Enable(smoothingParams);
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
@@ -371,38 +382,38 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
         private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
         {
            ////// Render Torso
-           // this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
-           // this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
-           // this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
-           // this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
-           // this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter);
-           // this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft);
-           // this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight);
+            this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
+            //this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter);
+            //this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft);
+            //this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight);
 
             // Left Arm
             this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
             this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
             this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
             
-           //// // Right Arm
+           ////// // Right Arm
             this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
             this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
             this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
 
            //// // Left Leg
-           // this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft);
-           // this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft);
-           // this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft);
 
-           //////  Right Leg
-           // this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
-           // this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
-           // this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);
+            ////  Right Leg
+            this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
+            this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);
 
            //  Render Joints
             foreach (Joint joint in skeleton.Joints)
             {
-              /*  if (joint == skeleton.Joints[JointType.HandRight] || joint == skeleton.Joints[JointType.HandLeft])
+                if (joint == skeleton.Joints[JointType.HandRight] || joint == skeleton.Joints[JointType.HandLeft])
                 
                 {
                     Brush drawBrush = null;
@@ -418,10 +429,10 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
 
                     if (drawBrush != null)
                     {
-                        jointPoint = this.SkeletonPointToScreen(joint.Position);
+                       // jointPoint = this.SkeletonPointToScreen(joint.Position);
                         drawingContext.DrawEllipse(drawBrush, null, this.SkeletonPointToScreen(joint.Position), JointThickness, JointThickness);
                     }
-                }*/
+                }
            }
         }
 
@@ -488,8 +499,8 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
                    
             Point joint0Point = this.SkeletonPointToScreen(joint0.Position);
             Point joint1Point = this.SkeletonPointToScreen(joint1.Position);
-            drawingContext.DrawLine(drawPen, joint0Point, this.SkeletonPointToScreen(joint1.Position));
-            drawingContext.DrawLine(new System.Windows.Media.Pen(System.Windows.Media.Brushes.Black, 36), this.SkeletonPointToScreen(joint0.Position), this.SkeletonPointToScreen(joint1.Position));
+           // drawingContext.DrawLine(drawPen, joint0Point, this.SkeletonPointToScreen(joint1.Position));
+           // drawingContext.DrawLine(new System.Windows.Media.Pen(System.Windows.Media.Brushes.Black, 36), this.SkeletonPointToScreen(joint0.Position), this.SkeletonPointToScreen(joint1.Position));
                         
             // create trunk branch
 
@@ -547,7 +558,7 @@ namespace Microsoft.Samples.Kinect.BranchingShadow
                 }
                 else
                 {
-                    this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;   //Default;
+                    this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Default;
                 }
             }
         }
